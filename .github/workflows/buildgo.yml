@@ -3,10 +3,10 @@ name: Build Go
 on:
   push:
     branches:
-      - proxyserver
+      - build
   pull_request:
     branches:
-      - proxyserver
+      - build
   workflow_dispatch:
     inputs:
       reason:

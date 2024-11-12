@@ -32,9 +32,10 @@ import (
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/rs/cors"
 
-	"github.com/bzsome/chaoGo/workpool"
 	"github.com/go-resty/resty/v2"
-	"github.com/patrickmn/go-cache"
+
+	// "github.com/patrickmn/go-cache"
+	"github.com/jellydator/ttlcache/v3"
 )
 
 var torrentCli *torrent.Client
@@ -54,10 +55,10 @@ func Start(config *Config) (int, error) {
 
 	InitClient()
 
-	if isWorkPool == nil {
-		isWorkPool = new(bool)
-	}
-	*isWorkPool = false
+	// if isWorkPool == nil {
+	// 	isWorkPool = new(bool)
+	// }
+	// *isWorkPool = false
 
 	torrentcliCfg = torrent.NewDefaultClientConfig()
 
@@ -171,7 +172,8 @@ func Stop() error {
 
 	// Clear cache
 	if mediaCache != nil {
-		mediaCache.Flush()
+		mediaCache.Stop()
+		mediaCache.DeleteAll()
 		mediaCache = nil
 	}
 
@@ -1013,6 +1015,14 @@ func InitClient() {
 	RestyClient = NewRestyClient()
 	RestyClientWithProxy = NewRestyClient()
 	HttpClient = NewHttpClient()
+	// 初始化缓存
+	mediaCache = ttlcache.New[string, interface{}](
+		ttlcache.WithTTL[string, interface{}](4*time.Hour),
+		ttlcache.WithDisableTouchOnHit[string, interface{}](),
+	)
+
+	// 启动自动清理
+	go mediaCache.Start()
 }
 
 func NewRestyClient() *resty.Client {
@@ -1074,9 +1084,11 @@ func NewHttpClient() *http.Client {
 	}
 }
 
-var isWorkPool *bool
+// var isWorkPool *bool
 var proxyTimeout = int64(10)
-var mediaCache = cache.New(4*time.Hour, 10*time.Minute)
+
+// var mediaCache = cache.New(4*time.Hour, 10*time.Minute)
+var mediaCache *ttlcache.Cache[string, interface{}]
 
 type Chunk struct {
 	startOffset int64
@@ -1145,32 +1157,32 @@ func ConcurrentDownload(p *ProxyDownloadStruct, downloadUrl string, rangeStart i
 
 	log.Printf("[Debug] Processing: %+v, rangeStart: %+v, rangeEnd: %+v, contentLength :%+v, splitSize: %+v, numSplits: %+v, numTasks: %+v", downloadUrl, rangeStart, rangeEnd, totalLength, splitSize, numSplits, numTasks)
 
-	if *isWorkPool {
-		var wp *workpool.WorkPool
-		workPoolKey := downloadUrl + "#Workpool"
-		if x, found := mediaCache.Get(workPoolKey); found {
-			wp = x.(*workpool.WorkPool)
-			if isWorkPool == nil {
-				wp = workpool.New(int(numTasks))
-				wp.SetTimeout(time.Duration(proxyTimeout) * time.Second)
-				mediaCache.Set(workPoolKey, wp, 14400*time.Second)
-			}
-		} else {
-			wp = workpool.New(int(numTasks))
-			wp.SetTimeout(time.Duration(proxyTimeout) * time.Second)
-			mediaCache.Set(workPoolKey, wp, 14400*time.Second)
-		}
-		for numSplit := 0; numSplit < int(numSplits); numSplit++ {
-			wp.Do(func() error {
-				p.ProxyWorker(req)
-				return nil
-			})
-		}
-	} else {
-		for numSplit := 0; numSplit < int(numSplits); numSplit++ {
-			go p.ProxyWorker(req)
-		}
+	// if *isWorkPool {
+	// 	var wp *workpool.WorkPool
+	// 	workPoolKey := downloadUrl + "#Workpool"
+	// 	if item := mediaCache.Get(workPoolKey); item != nil {
+	// 		wp = item.Value().(*workpool.WorkPool)
+	// 		if isWorkPool == nil {
+	// 			wp = workpool.New(int(numTasks))
+	// 			wp.SetTimeout(time.Duration(proxyTimeout) * time.Second)
+	// 			mediaCache.Set(workPoolKey, wp, 4*time.Hour)
+	// 		}
+	// 	} else {
+	// 		wp = workpool.New(int(numTasks))
+	// 		wp.SetTimeout(time.Duration(proxyTimeout) * time.Second)
+	// 		mediaCache.Set(workPoolKey, wp, 4*time.Hour)
+	// 	}
+	// 	for numSplit := 0; numSplit < int(numSplits); numSplit++ {
+	// 		wp.Do(func() error {
+	// 			p.ProxyWorker(req)
+	// 			return nil
+	// 		})
+	// 	}
+	// } else {
+	for numSplit := 0; numSplit < int(numSplits); numSplit++ {
+		go p.ProxyWorker(req)
 	}
+	// }
 
 	defer func() {
 		p.ProxyStop()
@@ -1532,8 +1544,10 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 	headersKey := urlStr + "#Headers"
 	var responseHeaders interface{}
 	var connection = "keep-alive"
-	responseHeaders, found := mediaCache.Get(headersKey)
-	if !found {
+	// 获取缓存
+	if item := mediaCache.Get(headersKey); item != nil {
+		responseHeaders = item.Value()
+	} else {
 		// Close Idle timeout setting
 		IdleConnTimeout = 0
 		resp, err := RestyClient.
