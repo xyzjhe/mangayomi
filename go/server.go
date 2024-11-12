@@ -221,10 +221,11 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 
 func fetchM3U8(url string) (string, error) {
 	log.Printf("Fetching M3U8 from %s", url)
-	resp, err := RestyClient.SetRetryCount(3).R().Get(url)
+	resp, err := RestyClient.SetRetryCount(3).R().SetHeader("User-Agent", UserAgent).Get(url)
 	if err != nil {
 		return "", err
 	}
+	// log.Printf("[Debug] M3U8 response: %s", resp.String())
 	return resp.String(), nil
 }
 
@@ -995,7 +996,9 @@ var (
 	// dnsResolverProto          = "udp"
 	// dnsResolverTimeoutMs      = 10000
 )
-var UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+
+// Chrome 123 (2024年3月最新版)
+var UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 var DefaultTimeout = time.Second * 30
 
 func InitClient() {
