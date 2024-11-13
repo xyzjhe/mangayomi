@@ -8,7 +8,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart'
     as flutter_inappwebview;
 import 'package:mangayomi/models/settings.dart';
 import 'package:http/io_client.dart';
-import 'package:mangayomi/utils/extensions/string_extensions.dart';
 import 'package:mangayomi/utils/log/log.dart';
 import 'package:mangayomi/services/http/rhttp/rhttp.dart' as rhttp;
 
