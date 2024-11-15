@@ -73,6 +73,7 @@ dependencies:
       url: https://github.com/kodjodevf/desktop_webview_window.git
       path: packages/desktop_webview_window
       ref: main
+  synchronized: ^3.3.0+3
 
 dependency_overrides:
   http: ^1.2.1
