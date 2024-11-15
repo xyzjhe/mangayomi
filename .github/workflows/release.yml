@@ -232,36 +232,6 @@ jobs:
           artifacts: build\windows\Mangayomi-*.zip
           allowUpdates: true
 
-          
-  build-and-release-linux-zip:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      
-      - name: checkout branch
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install webkit2gtk-4.1 clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev
-
-      - name: setup flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install the CLI tool
-        run: cargo install 'flutter_rust_bridge_codegen'
-        
-
-      - name: flutter pub get
-        run: flutter pub get
-
       - name: Update anime sources URL
         run: sed -i 's|https://kodjodevf.github.io/mangayomi-extensions/anime_index.json|https://yxxyun.github.io/mangayomi-extensions/anime_index.json|g' lib/services/fetch_anime_sources.dart
 
@@ -276,46 +246,6 @@ jobs:
           type: "zip"
           filename: Mangayomi-${{ github.ref_name }}-linux.zip
           directory: build/linux/x64/release/bundle
-      
-      - name: upload artifact linux zip
-        uses: actions/upload-artifact@v3
-        with:
-          path: build/linux/x64/release/bundle/Mangayomi-*.zip
-      - name: release packages linux zip
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: build/linux/x64/release/bundle/Mangayomi-*.zip
-          allowUpdates: true
-
-
-  build-and-release-linux-appimage_libmpv_so:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      
-      - name: checkout branch
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install webkit2gtk-4.1 clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev
-
-      - name: setup flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install the CLI tool
-        run: cargo install 'flutter_rust_bridge_codegen'
-        
-
-      - name: flutter pub get
-        run: flutter pub get
 
       - name: Update anime sources URL
         run: sed -i 's|https://kodjodevf.github.io/mangayomi-extensions/anime_index.json|https://yxxyun.github.io/mangayomi-extensions/anime_index.json|g' lib/services/fetch_anime_sources.dart
@@ -326,58 +256,6 @@ jobs:
       - name: build linux
         run: |  
 
-          sudo apt install -y libfuse2
-          
-          curl -JOL https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod a+x appimagetool-x86_64.AppImage
-          mv appimagetool-x86_64.AppImage appimagetool
-
-          flutter build linux --release
-
-          patchelf --replace-needed libmpv.so.1 libmpv.so build/linux/x64/release/bundle/lib/libmedia_kit_video_plugin.so
-          patchelf --replace-needed libmpv.so.1 libmpv.so build/linux/x64/release/bundle/lib/libmedia_kit_native_event_loop.so
-                    
-          mv build/linux/x64/release/bundle/{mangayomi,AppRun}
-          cp linux/appimage/* build/linux/x64/release/bundle/
-          ./appimagetool build/linux/x64/release/bundle/
-          mv *.AppImage build/Mangayomi-${{ github.ref_name }}-linux_libmpv_so.AppImage
-
-      - name: upload artifact linux appimage
-        uses: actions/upload-artifact@v3
-        with:
-          path: build/Mangayomi-*.AppImage
-      - name: Rrelease packages appimage
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: build/Mangayomi-*.AppImage
-          allowUpdates: true
-
-  build-and-release-linux-appimage_libmpv_so_1:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      
-      - name: checkout branch
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install webkit2gtk-4.1 clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev
-
-      - name: setup flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install the CLI tool
-        run: cargo install 'flutter_rust_bridge_codegen'
-        
-
       - name: flutter pub get
         run: flutter pub get
       
@@ -386,29 +264,3 @@ jobs:
 
       - name: Update manga sources URL
         run: sed -i 's|https://kodjodevf.github.io/mangayomi-extensions/index.json|https://yxxyun.github.io/mangayomi-extensions/index.json|g' lib/services/fetch_manga_sources.dart
-
-      - name: build linux
-        run: |  
-
-          sudo apt install -y libfuse2
-          
-          curl -JOL https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod a+x appimagetool-x86_64.AppImage
-          mv appimagetool-x86_64.AppImage appimagetool
-
-          flutter build linux --release
-          
-          mv build/linux/x64/release/bundle/{mangayomi,AppRun}
-          cp linux/appimage/* build/linux/x64/release/bundle/
-          ./appimagetool build/linux/x64/release/bundle/
-          mv *.AppImage build/Mangayomi-${{ github.ref_name }}-linux_libmpv_so_1.AppImage
-
-      - name: upload artifact linux appimage
-        uses: actions/upload-artifact@v3
-        with:
-          path: build/Mangayomi-*.AppImage
-      - name: Rrelease packages appimage
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: build/Mangayomi-*.AppImage
-          allowUpdates: true
