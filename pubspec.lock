@@ -538,6 +538,15 @@ packages:
       url: "https://github.com/pichillilorenzo/flutter_inappwebview.git"
     source: git
     version: "1.4.0-beta.2"
+  flutter_inappwebview_web:
+    dependency: transitive
+    description:
+      path: flutter_inappwebview_web
+      ref: fe5949f7fa8478943e98e748b19152a9fdc36be4
+      resolved-ref: fe5949f7fa8478943e98e748b19152a9fdc36be4
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview.git"
+    source: git
+    version: "1.2.0-beta.2"
   flutter_inappwebview_windows:
     dependency: "direct overridden"
     description:
