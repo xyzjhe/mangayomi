@@ -434,7 +434,7 @@ class QuarkUcExtractor {
       var headers = getHeaders();
       headers.remove('Content-Type');
       String goUrl =
-          "$baseUrl/?thread=2&url=&ucfids=${saveFileIdCaches[fileId]}&header=${Uri.encodeComponent(jsonEncode(headers))}";
+          "$baseUrl/?thread=8&url=&ucfids=${saveFileIdCaches[fileId]}&header=${Uri.encodeComponent(jsonEncode(headers))}";
       videos.add(Video(goUrl, "原画Go", goUrl));
       // String? url = (await getDownload(
       //     shareId, stoken, fileId, fileToken, true))?['download_url'];
