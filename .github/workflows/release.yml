@@ -24,6 +24,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -85,6 +86,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
       
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -137,6 +139,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -188,6 +191,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -251,6 +255,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -306,6 +311,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
           
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -370,6 +376,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.5
           
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
