@@ -1669,7 +1669,7 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 		} else {
 			// Support resume download
 			log.Printf("[Debug] Support resume download")
-			mediaCache.Set(headersKey, responseHeaders, 1800*time.Second)
+			mediaCache.Set(headersKey, responseHeaders, 14400*time.Second)
 
 			if resp != nil && resp.RawBody() != nil {
 				log.Printf("[Debug] resp.RawBody closed")
@@ -1770,6 +1770,7 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 		} else {
 			statusCode = 200
 			connection = "close"
+			mediaCache.Delete(headersKey)
 			for key, values := range responseHeaders.(http.Header) {
 				if strings.EqualFold(strings.ToLower(key), "connection") || strings.EqualFold(strings.ToLower(key), "proxy-connection") || strings.EqualFold(strings.ToLower(key), "transfer-encoding") {
 					continue
