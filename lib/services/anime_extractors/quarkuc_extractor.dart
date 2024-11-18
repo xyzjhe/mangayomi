@@ -24,6 +24,7 @@ class QuarkUcExtractor {
   Map<String, String> saveFileIdCaches = {};
   String? saveDirId;
   final String saveDirName = 'TV';
+  String _lastCookie = "";
 
   Future<void> initCloudDrive(
       String cookie, CloudDriveType cloudDriveType) async {
@@ -35,6 +36,7 @@ class QuarkUcExtractor {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) quark-cloud-drive/2.5.20 Chrome/100.0.4896.160 Electron/18.3.5.4-b478491100 Safari/537.36 Channel/pckk_other_ch";
       refererUrl = "https://pan.quark.cn/";
       host = "https://quark.cn";
+      _lastCookie = "https://quarkcookie.last";
     } else {
       apiUrl = "https://pc-api.uc.cn/1/clouddrive/";
       pr = "pr=UCBrowser&fr=pc";
@@ -42,15 +44,22 @@ class QuarkUcExtractor {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) uc-cloud-drive/2.5.20 Chrome/100.0.4896.160 Electron/18.3.5.4-b478491100 Safari/537.36 Channel/pckk_other_ch";
       refererUrl = "https://drive.uc.cn/";
       host = "https://uc.cn";
+      _lastCookie = "https://uccookie.last";
     }
-    if (getCurrentCookie() == null) {
+    if (cookie.isNotEmpty && getLastCookie() != cookie) {
       MClient.writeCookie(host, ua, cookie: cookie);
+      MClient.writeCookie(_lastCookie, ua, cookie: cookie);
     }
   }
 
-  String? getCurrentCookie() {
+  String getLastCookie() {
+    var cookie = MClient.getCookiesPref(_lastCookie);
+    return cookie.isNotEmpty ? cookie.values.first : "";
+  }
+
+  String getCurrentCookie() {
     var cookie = MClient.getCookiesPref(host);
-    return cookie.isNotEmpty ? cookie.values.first : null;
+    return cookie.isNotEmpty ? cookie.values.first : "";
   }
 
   Map<String, String> getHeaders() {
@@ -58,7 +67,7 @@ class QuarkUcExtractor {
       'User-Agent': ua,
       'Referer': refererUrl,
       "Content-Type": "application/json",
-      "Cookie": getCurrentCookie() ?? "",
+      "Cookie": getCurrentCookie(),
     };
   }
 
@@ -98,7 +107,7 @@ class QuarkUcExtractor {
         if (cookie.contains('__puus=')) {
           final newPuus = cookie.split(';')[0]; // 获取新的 __puus
           var currentCookie = getCurrentCookie();
-          if (currentCookie != null) {
+          if (currentCookie.isNotEmpty) {
             // 更新 __puus
             if (currentCookie.contains('__puus=')) {
               currentCookie =
