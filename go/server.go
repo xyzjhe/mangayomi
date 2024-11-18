@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
@@ -1153,7 +1154,7 @@ func newProxyDownloadStruct(downloadUrl string, proxyTimeout int64, maxBuferredC
 
 func ConcurrentDownload(p *ProxyDownloadStruct, downloadUrl string, rangeStart int64, rangeEnd int64, splitSize int64, numTasks int64, emitter *Emitter, req *http.Request, jar *cookiejar.Jar) {
 	totalLength := rangeEnd - rangeStart + 1
-	numSplits := int64(totalLength/int64(splitSize)) + 1
+	numSplits := int64(math.Ceil(float64(totalLength) / float64(splitSize)))
 	if numSplits > int64(numTasks) {
 		numSplits = int64(numTasks)
 	}
@@ -1748,7 +1749,11 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 				}
 				w.Header().Set(key, strings.Join(values, ","))
 			}
-			w.Header().Set("Connection", "keep-alive")
+			if (rangeStart + splitSize*numTasks) >= (contentSize - 1) {
+				w.Header().Set("Connection", "keep-alive")
+			} else {
+				w.Header().Set("Connection", "close")
+			}
 			w.WriteHeader(statusCode)
 
 			rp, wp := io.Pipe()
@@ -1762,6 +1767,9 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 
 			defer func() {
 				log.Printf("[Debug] handleGetMethod emitter closed-Support resume download")
+				if (rangeStart + splitSize*numTasks) >= (contentSize - 1) {
+					mediaCache.Delete(headersKey)
+				}
 				p.ProxyStop()
 				p = nil
 				emitter.Close()
