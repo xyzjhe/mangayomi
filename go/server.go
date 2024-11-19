@@ -1750,9 +1750,9 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 				w.Header().Set(key, strings.Join(values, ","))
 			}
 			if (rangeStart + splitSize*numTasks) >= (contentSize - 1) {
-				w.Header().Set("Connection", "keep-alive")
-			} else {
 				w.Header().Set("Connection", "close")
+			} else {
+				w.Header().Set("Connection", "keep-alive")
 			}
 			w.WriteHeader(statusCode)
 
