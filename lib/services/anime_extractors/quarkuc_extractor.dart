@@ -494,7 +494,7 @@ class QuarkUcExtractor {
           String subName = subParts[0];
           String subFileId = subParts[2];
           var subDownload =
-              await getDownload(shareId, stoken, subFileId, '', true);
+              await getDownload(shareId, stoken, subFileId, '', false);
           String? subUrl = subDownload?['download_url'];
           if (subUrl != null) {
             subtitles.add(Track(file: subUrl, label: subName));

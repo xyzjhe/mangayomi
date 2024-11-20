@@ -1570,7 +1570,10 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		if resp.StatusCode() < 200 || resp.StatusCode() >= 400 {
-			http.Error(w, resp.Status(), resp.StatusCode())
+			defer resp.RawBody().Close()
+			bodyBytes, _ := io.ReadAll(resp.RawBody())
+			bodyString := string(bodyBytes)
+			http.Error(w, bodyString, resp.StatusCode())
 			log.Printf("[Error] Failed to download %v link: %v", urlStr, resp.Status())
 			return
 		}
@@ -1585,15 +1588,15 @@ func handleGetMethod(w http.ResponseWriter, req *http.Request) {
 			}
 		} else {
 			// Find the index of the last "/"
-			lastSlashIndex := strings.LastIndex(urlStr, "/")
+			//lastSlashIndex := strings.LastIndex(urlStr, "/")
 			// Find the index of the first "?"
 			queryIndex := strings.Index(urlStr, "?")
 			if queryIndex == -1 {
 				// If there is no "?", extract the string from the last "/" to the end
-				fileName = urlStr[lastSlashIndex+1:]
+				fileName = urlStr[strings.LastIndex(urlStr, "/")+1:]
 			} else {
 				// If there is a "?", extract the string from the last "/" to the "?"
-				fileName = urlStr[lastSlashIndex+1 : queryIndex]
+				fileName = urlStr[strings.LastIndex(urlStr[:queryIndex], "/")+1 : queryIndex]
 			}
 		}
 		log.Printf("[Debug] fileName: %v", fileName)
@@ -1841,7 +1844,8 @@ func handleOtherMethod(w http.ResponseWriter, req *http.Request) {
 			newHeader[key] = value
 		}
 	}
-
+	parsedURL, _ := url.Parse(urlStr)
+	newHeader["Host"] = []string{parsedURL.Host}
 	// Build new URL
 	for parameterName := range query {
 		if parameterName == "url" || parameterName == "form" || parameterName == "thread" || parameterName == "size" || parameterName == "header" {
