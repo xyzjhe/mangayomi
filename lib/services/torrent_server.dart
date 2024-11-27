@@ -23,19 +23,6 @@ class MTorrentServer {
   int? _serverPort;
 
   final http = MClient.init();
-  Future<bool> removeTorrent(String? inforHash) async {
-    if (inforHash == null || inforHash.isEmpty) return false;
-    try {
-      final res = await http
-          .delete(Uri.parse("$_baseUrl/torrent/remove?infohash=$inforHash"));
-      if (res.statusCode == 200) {
-        return true;
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
-  }
 
   Future<bool> check() async {
     if (!_isRunning || _serverPort == null) return false;
