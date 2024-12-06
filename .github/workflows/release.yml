@@ -76,7 +76,7 @@ jobs:
   build-and-release-ios-ipa:
     permissions:
       contents: write
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       # Checkout branch
       - name: checkout branch
