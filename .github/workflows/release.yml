@@ -76,7 +76,7 @@ jobs:
   build-and-release-ios-ipa:
     permissions:
       contents: write
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       # Checkout branch
       - name: checkout branch
@@ -88,8 +88,8 @@ jobs:
           channel: 'stable'
           architecture: x64
       
-      - name: setup xcode
-        run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
+      # - name: setup xcode
+      #   run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
       
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
