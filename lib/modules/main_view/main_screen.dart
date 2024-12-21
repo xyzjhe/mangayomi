@@ -27,12 +27,17 @@ class MainScreen extends ConsumerWidget {
 
   String getHyphenatedUpdatesLabel(String languageCode, String defaultLabel) {
     switch (languageCode) {
-      case 'de': return "Aktuali-\nsierungen";
+      case 'de':
+        return "Aktuali-\nsierungen";
       case 'es':
-      case 'es_419': return "Actuali-\nzaciones";
-      case 'it': return "Aggiorna-\nmenti";
-      case 'tr': return "Güncel-\nlemeler";
-      default: return defaultLabel;
+      case 'es_419':
+        return "Actuali-\nzaciones";
+      case 'it':
+        return "Aggiorna-\nmenti";
+      case 'tr':
+        return "Güncel-\nlemeler";
+      default:
+        return defaultLabel;
     }
   }
 
@@ -157,10 +162,14 @@ class MainScreen extends ConsumerWidget {
                                                   children: [
                                                     Text(
                                                       getHyphenatedUpdatesLabel(
-                                                        ref.watch(l10nLocaleStateProvider).languageCode,
+                                                        ref
+                                                            .watch(
+                                                                l10nLocaleStateProvider)
+                                                            .languageCode,
                                                         l10n.updates,
                                                       ),
-                                                      textAlign: TextAlign.center,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                     ),
                                                   ],
                                                 ))),
