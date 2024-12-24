@@ -79,6 +79,7 @@ dependencies:
       ref: main
   screen_brightness: ^2.0.1
   synchronized: ^3.3.0+3
+  flutter_widget_from_html: ^0.15.3
 
 dependency_overrides:
   http: ^1.2.2
